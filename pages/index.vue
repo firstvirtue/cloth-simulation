@@ -1,7 +1,7 @@
 <template>
   <section class="container">
     <div>
-      <canvas id="canvas" width="600" height="600"></canvas>
+      <canvas id="canvas"></canvas>
     </div>
   </section>
 </template>
@@ -14,11 +14,12 @@ export default {
     AppLogo
   },
   mounted() {
-    // 의사코드
-    const point = 4;
-    const spacing = 50;
-    const clothX = 5;
-    const clothY = 5;
+    // 변수 선언
+    const spacing = 10;
+    const clothX = 30;
+    const clothY = 30;
+    const gravity = new Vector(0, 0.4);
+
     let particles = [];
 
     // 관계 생성
@@ -43,6 +44,9 @@ export default {
     }
 
     let canvas = document.getElementById('canvas');
+    canvas.width = window.innerWidth - 20;
+    canvas.height = window.innerHeight - 20;
+
     let ctx = canvas.getContext('2d');
     ctx.strokeStyle = '#555';
 
@@ -69,23 +73,27 @@ export default {
       influence: 26
     }
 
-
     ;(function update(time) {
 
-      particles.forEach((e) => {
-        e.update(mouse);
+      // 힘 계산
+      particles.forEach((particle, i) => {
+        particle.updateMouse(mouse);
+        // particle.addForce(gravity);
+        particle.updateSpring();
       });
 
+      // 적분기
+      particles.forEach((particle) => {
+        particle.updateStep(0.016);
+      });
+
+      // 그리기
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       ctx.beginPath();
-      particles.forEach((e) => {
-        // console.log(e);
-        e.springs.forEach(spring => {
-          spring.draw();
-        });
+      particles.forEach((particle) => {
+        particle.draw();
       });
-
       ctx.stroke();
 
       window.requestAnimFrame(update);
@@ -94,25 +102,60 @@ export default {
   }
 }
 
-class Vector2 {
-  constructor() {
-
+class Vector {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
   }
 
   normalize() {
+    let m = Math.sqrt(this.x*this.x + this.y*this.y);
 
+    this.x /= m;
+    this.y /= m;
   }
 
   magnitude() {
+    return Math.sqrt(this.x*this.x + this.y*this.y);
+  }
 
+  addScaledVector(vector, scale) {
+    this.x += vector.x * scale;
+    this.y += vector.y * scale;
+  }
+
+  negative() {
+    return new Vector(-this.x, -this.y);
+  }
+
+  add(v) {
+    if(v instanceof Vector) return new Vector(this.x + v.x, this.y + v.y);
+    else return new Vector(this.x + v, this.y + v);
+  }
+
+  subtract(vector) {
+    let v = new Vector(this.x - vector.x, this.y - vector.y);
+    return v;
+  }
+
+  multiply(v) {
+    if(v instanceof Vector) return new Vector(this.x * v.x, this.y * v.y);
+    else return new Vector(this.x * v, this.y * v);
+  }
+
+  clear() {
+    this.x = 0;
+    this.y = 0;
   }
 }
 
 // 또는 particle
 class Point {
   constructor(x, y) {
-    this.x = x;
-    this.y = y;
+    this.vPosition = new Vector(x, y);
+    this.vForce = new Vector(0, 0);
+    this.vVelocity = new Vector(0, 0);
+    this.vAcceleration = new Vector(0, 0);
     this.springs = [];
   }
 
@@ -120,14 +163,12 @@ class Point {
     this.springs.push(new Spring(this, p));
   }
 
-  update(mouse) {
+  updateMouse(mouse) {
     if (mouse.down) {
 
-      let dx = this.x - mouse.x
-      let dy = this.y - mouse.y
-      let dist = Math.sqrt(dx * dx + dy * dy)
-
-      console.log(dist);
+      let dx = this.vPosition.x - mouse.x;
+      let dy = this.vPosition.y - mouse.y;
+      let dist = Math.sqrt(dx * dx + dy * dy);
 
       if (dist < mouse.influence) {
       //   this.px = this.x - (mouse.x - mouse.px)
@@ -135,10 +176,46 @@ class Point {
       // } else if (dist < mouse.cut) {
       //   this.constraints = []
 
-        this.x = mouse.x;
-        this.y = mouse.y;
+        // this.vPosition.x = mouse.x;
+        // this.vPosition.y = mouse.y;
+
+        // this.addForce(new Vector(this.vPosition.x - (mouse.x - mouse.px), this.vPosition.y - (mouse.y - mouse.py)));
+        this.addForce(new Vector(mouse.x - this.vPosition.x, mouse.y - this.vPosition.y), 100);
+
+        // console.log(this.vPosition.x - mouse.x);
       }
     }
+  }
+
+  updateSpring() {
+    this.springs.forEach(spring => {
+      spring.update();
+    });
+  }
+
+  addForce(force, scale = 1) {
+    this.vForce.addScaledVector(force, scale);
+  }
+
+  resolve() {
+
+  }
+
+  updateStep(time) {
+    this.vPosition.addScaledVector(this.vVelocity, time);
+
+    // F = m * a
+    this.vAcceleration = this.vForce;
+
+    this.vVelocity.addScaledVector(this.vAcceleration, time);
+
+    this.vForce.clear();
+  }
+
+  draw() {
+    this.springs.forEach(spring => {
+      spring.draw();
+    });
   }
 }
 
@@ -150,14 +227,35 @@ class Spring {
   }
 
   update() {
+    const restLength = 10;
+    const springConstant = 100;
+    const springDamping = 10;
 
+    let pt1 = this.p1.vPosition;
+    let v1 = this.p1.vVelocity;
+
+    let pt2 = this.p2.vPosition;
+    let v2 = this.p2.vVelocity;
+
+    let vr = v2.subtract(v1);
+    let r = pt2.subtract(pt1);
+
+    let dl = r.magnitude() - restLength;
+    let f = springConstant * dl;
+    r.normalize();
+
+    let vForce = r.multiply(f).add(vr.multiply(r).multiply(springDamping).multiply(r));
+    // let vForce = vr.multiply(r).multiply(springDamping).multiply(r);
+
+    this.p1.addForce(vForce);
+    this.p2.addForce(vForce.negative());
   }
 
   draw() {
     let ctx = canvas.getContext('2d');
 
-    ctx.moveTo(this.p1.x, this.p1.y);
-    ctx.lineTo(this.p2.x, this.p2.y);
+    ctx.moveTo(this.p1.vPosition.x, this.p1.vPosition.y);
+    ctx.lineTo(this.p2.vPosition.x, this.p2.vPosition.y);
   }
 }
 </script>
