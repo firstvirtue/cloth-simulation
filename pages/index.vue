@@ -180,7 +180,7 @@ class Point {
         // this.vPosition.y = mouse.y;
 
         // this.addForce(new Vector(this.vPosition.x - (mouse.x - mouse.px), this.vPosition.y - (mouse.y - mouse.py)));
-        this.addForce(new Vector(mouse.x - this.vPosition.x, mouse.y - this.vPosition.y), 100);
+        this.addForce(new Vector(mouse.x - this.vPosition.x, mouse.y - this.vPosition.y), 150);
 
         // console.log(this.vPosition.x - mouse.x);
       }
@@ -190,6 +190,7 @@ class Point {
   updateSpring() {
     this.springs.forEach(spring => {
       spring.update();
+      // spring.update2();
     });
   }
 
@@ -246,6 +247,27 @@ class Spring {
 
     let vForce = r.multiply(f).add(vr.multiply(r).multiply(springDamping).multiply(r));
     // let vForce = vr.multiply(r).multiply(springDamping).multiply(r);
+
+    this.p1.addForce(vForce);
+    this.p2.addForce(vForce.negative());
+  }
+
+  update2() {
+    const restLength = 10;
+    const springConstant = 2;
+    const springDamping = 100;
+
+    let pt1 = this.p1.vPosition;
+    let pt2 = this.p2.vPosition;
+
+    let vForce = pt2.subtract(pt1);
+    let magnitude = vForce.magnitude();
+
+    magnitude = magnitude - restLength;
+    magnitude *= springConstant;
+    vForce.normalize();
+
+    vForce = vForce.multiply(-magnitude);
 
     this.p1.addForce(vForce);
     this.p2.addForce(vForce.negative());
