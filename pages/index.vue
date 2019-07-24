@@ -167,6 +167,7 @@ class Point extends DebugObject {
     this.vVelocity = new Vector(0, 0);
     this.vAcceleration = new Vector(0, 0);
     this.springs = [];
+    this.mass = 0.2;
   }
 
   attach(p) {
@@ -185,7 +186,7 @@ class Point extends DebugObject {
         // console.log(`mouse.x: ${mouse.x}, mouse.px: ${mouse.px}`);
         // console.log(`pointx: ${this.vPosition.x}, mousex: ${mouse.x}`);
 
-        this.addForce(new Vector((mouse.x - mouse.px), (mouse.y - mouse.py)), 10000);
+        this.addForce(new Vector((mouse.x - mouse.px), (mouse.y - mouse.py)), 5000);
         // this.addForce(new Vector(mouse.x - this.vPosition.x, mouse.y - this.vPosition.y), 50);
 
         // console.log(this.vPosition.x - mouse.x);
@@ -210,9 +211,8 @@ class Point extends DebugObject {
   updateStep(time) {
     this.vPosition.addScaledVector(this.vVelocity, time);
 
-    let mass = 0.2;
     // F = m * a
-    this.vAcceleration = this.vForce.multiply(mass);
+    this.vAcceleration = this.vForce.multiply(this.mass);
 
     this.vVelocity.addScaledVector(this.vAcceleration, time);
 
@@ -235,7 +235,7 @@ class Spring {
 
   update() {
     const restLength = 10;
-    const springConstant = 200;
+    const springConstant = 80;
     const springDamping = 50;
 
     let pt1 = this.p1.vPosition;
