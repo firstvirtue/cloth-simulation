@@ -12,13 +12,14 @@ import AppLogo from '~/components/AppLogo.vue'
 export default {
   components: {
     AppLogo
+
   },
   mounted() {
     // 변수 선언
     const spacing = 10;
-    const clothX = 30;
-    const clothY = 30;
-    const gravity = new Vector(0, 0.4);
+    const clothX = 35;
+    const clothY = 35;
+    const gravity = new Vector(0, 31.4);
 
     let particles = [];
 
@@ -79,6 +80,7 @@ export default {
       particles.forEach((particle, i) => {
         particle.updateMouse(mouse);
         // particle.addForce(gravity);
+
         particle.updateSpring();
       });
 
@@ -149,9 +151,17 @@ class Vector {
   }
 }
 
+class DebugObject {
+  constructor() {
+
+  }
+}
+
 // 또는 particle
-class Point {
+class Point extends DebugObject {
   constructor(x, y) {
+    super();
+
     this.vPosition = new Vector(x, y);
     this.vForce = new Vector(0, 0);
     this.vVelocity = new Vector(0, 0);
@@ -171,16 +181,12 @@ class Point {
       let dist = Math.sqrt(dx * dx + dy * dy);
 
       if (dist < mouse.influence) {
-      //   this.px = this.x - (mouse.x - mouse.px)
-      //   this.py = this.y - (mouse.y - mouse.py)
-      // } else if (dist < mouse.cut) {
-      //   this.constraints = []
 
-        // this.vPosition.x = mouse.x;
-        // this.vPosition.y = mouse.y;
+        // console.log(`mouse.x: ${mouse.x}, mouse.px: ${mouse.px}`);
+        // console.log(`pointx: ${this.vPosition.x}, mousex: ${mouse.x}`);
 
-        // this.addForce(new Vector(this.vPosition.x - (mouse.x - mouse.px), this.vPosition.y - (mouse.y - mouse.py)));
-        this.addForce(new Vector(mouse.x - this.vPosition.x, mouse.y - this.vPosition.y), 150);
+        this.addForce(new Vector((mouse.x - mouse.px), (mouse.y - mouse.py)), 10000);
+        // this.addForce(new Vector(mouse.x - this.vPosition.x, mouse.y - this.vPosition.y), 50);
 
         // console.log(this.vPosition.x - mouse.x);
       }
@@ -190,7 +196,6 @@ class Point {
   updateSpring() {
     this.springs.forEach(spring => {
       spring.update();
-      // spring.update2();
     });
   }
 
@@ -205,8 +210,9 @@ class Point {
   updateStep(time) {
     this.vPosition.addScaledVector(this.vVelocity, time);
 
+    let mass = 0.2;
     // F = m * a
-    this.vAcceleration = this.vForce;
+    this.vAcceleration = this.vForce.multiply(mass);
 
     this.vVelocity.addScaledVector(this.vAcceleration, time);
 
@@ -229,8 +235,8 @@ class Spring {
 
   update() {
     const restLength = 10;
-    const springConstant = 100;
-    const springDamping = 10;
+    const springConstant = 200;
+    const springDamping = 50;
 
     let pt1 = this.p1.vPosition;
     let v1 = this.p1.vVelocity;
@@ -284,11 +290,11 @@ class Spring {
 
 <style>
 .container {
-  min-height: 100vh;
+  /* min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  text-align: center;
+  text-align: center; */
 }
 
 .title {
