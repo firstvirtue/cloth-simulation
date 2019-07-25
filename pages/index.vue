@@ -21,7 +21,7 @@ export default {
     const clothY = 42;
     const gravity = new Vector(0, 3.4);
     // const TIME = 0.016;
-    const TIME = 0.03;
+    const TIME = 0.035;
 
     let particles = [];
     let currentParticle;
@@ -271,7 +271,7 @@ class Spring {
 
   update() {
     const restLength = 10;
-    const springConstant = 28;
+    const springConstant = 58;
     const springDamping = 15;
 
     let pt1 = this.p1.vPosition;
