@@ -52,51 +52,62 @@ export default {
     let ctx = canvas.getContext('2d');
     ctx.strokeStyle = '#555';
 
-    let getClosestParticle = function() {
-      let dist;
+    let getClosestParticle = function(mouse) {
+      let dist,
+        minDist = 200,
+        minParticle = null;
 
       particles.forEach(particle => {
-        // dist =
+        dist = particle.vPosition.subtract(mouse.vPosition).magnitude();
+
+        if(dist < minDist) {
+          minDist = dist;
+          minParticle = particle;
+        }
       });
-      return particles[particles.length - 1];
+
+      return minParticle;
     }
 
     canvas.onmousedown = (e) => {
       mouse.down = true;
+      getMouse(e);
 
       currentParticle = getClosestParticle(mouse);
       currentParticle.setCurrent();
     };
 
     canvas.onmousemove = mousemove;
+
     canvas.onmouseup = () => {
       mouse.down = false;
-
       currentParticle.free();
     }
 
     function mousemove(e) {
-      let rect = canvas.getBoundingClientRect()
-      mouse.px = mouse.x
-      mouse.py = mouse.y
-      mouse.x = e.clientX - rect.left
-      mouse.y = e.clientY - rect.top
+      getMouse(e);
 
-      currentParticle.setPosition(mouse.x, mouse.y);
+      if(currentParticle)
+        currentParticle.setPosition(mouse.vPosition);
+    }
+
+    function getMouse(e) {
+      let rect = canvas.getBoundingClientRect()
+
+      mouse.vPosition.x = e.clientX - rect.left
+      mouse.vPosition.y = e.clientY - rect.top
     }
 
     let mouse = {
       down: false,
-      x: 0,
-      y: 0,
-      influence: 26
+      influence: 26,
+      vPosition: new Vector(0, 0)
     }
 
     ;(function update(time) {
 
       // 힘 계산
       particles.forEach((particle, i) => {
-        // particle.updateMouse(mouse);
         // particle.addForce(gravity);
 
         particle.updateSpring();
@@ -115,6 +126,13 @@ export default {
         particle.draw();
       });
       ctx.stroke();
+
+      // DEBUG
+      //★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+      if(currentParticle) {
+        // console.log(currentParticle.vForce);
+      }
+      //★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 
       window.requestAnimFrame(update);
     })(0);
@@ -193,10 +211,10 @@ class Point extends DebugObject {
     this.springs.push(new Spring(this, p));
   }
 
-  setPosition(x, y) {
+  setPosition(v) {
     if(this.isCurrent) {
-      this.vPosition.x = x;
-      this.vPosition.y = y;
+      this.vPosition.x = v.x;
+      this.vPosition.y = v.y;
     }
   }
 
@@ -206,26 +224,6 @@ class Point extends DebugObject {
 
   free() {
     this.isCurrent = false;
-  }
-
-  updateMouse(mouse) {
-    if (mouse.down) {
-
-      let dx = this.vPosition.x - mouse.x;
-      let dy = this.vPosition.y - mouse.y;
-      let dist = Math.sqrt(dx * dx + dy * dy);
-
-      if (dist < mouse.influence) {
-
-        // console.log(`mouse.x: ${mouse.x}, mouse.px: ${mouse.px}`);
-        // console.log(`pointx: ${this.vPosition.x}, mousex: ${mouse.x}`);
-
-        this.addForce(new Vector((mouse.x - mouse.px), (mouse.y - mouse.py)), 5000);
-        // this.addForce(new Vector(mouse.x - this.vPosition.x, mouse.y - this.vPosition.y), 50);
-
-        // console.log(this.vPosition.x - mouse.x);
-      }
-    }
   }
 
   updateSpring() {
@@ -243,12 +241,14 @@ class Point extends DebugObject {
   }
 
   updateStep(time) {
-    this.vPosition.addScaledVector(this.vVelocity, time);
+    if(! this.isCurrent) {
+      this.vPosition.addScaledVector(this.vVelocity, time);
 
-    // F = m * a
-    this.vAcceleration = this.vForce.multiply(this.mass);
+      // F = m * a
+      this.vAcceleration = this.vForce.multiply(this.mass);
 
-    this.vVelocity.addScaledVector(this.vAcceleration, time);
+      this.vVelocity.addScaledVector(this.vAcceleration, time);
+    }
 
     this.vForce.clear();
   }
