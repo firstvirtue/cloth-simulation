@@ -17,9 +17,11 @@ export default {
   mounted() {
     // 변수 선언
     const spacing = 10;
-    const clothX = 35;
-    const clothY = 35;
-    const gravity = new Vector(0, 31.4);
+    const clothX = 22;
+    const clothY = 22;
+    const gravity = new Vector(0, 10.4);
+    // const TIME = 0.016;
+    const TIME = 0.03;
 
     let particles = [];
     let currentParticle;
@@ -108,14 +110,14 @@ export default {
 
       // 힘 계산
       particles.forEach((particle, i) => {
-        // particle.addForce(gravity);
+        particle.addForce(gravity);
 
         particle.updateSpring();
       });
 
       // 적분기
       particles.forEach((particle) => {
-        particle.updateStep(0.016);
+        particle.updateStep(TIME);
       });
 
       // 그리기
@@ -129,9 +131,9 @@ export default {
 
       // DEBUG
       //★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-      if(currentParticle) {
-        // console.log(currentParticle.vForce);
-      }
+      // if(currentParticle) {
+        // console.log(currentParticle.vPosition);
+      // }
       //★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
 
       window.requestAnimFrame(update);
@@ -203,7 +205,7 @@ class Point extends DebugObject {
     this.vVelocity = new Vector(0, 0);
     this.vAcceleration = new Vector(0, 0);
     this.springs = [];
-    this.mass = 0.2;
+    this.mass = 0.5;
     this.isCurrent = false;
   }
 
@@ -269,8 +271,8 @@ class Spring {
 
   update() {
     const restLength = 10;
-    const springConstant = 80;
-    const springDamping = 50;
+    const springConstant = 28;
+    const springDamping = 15;
 
     let pt1 = this.p1.vPosition;
     let v1 = this.p1.vVelocity;
@@ -282,14 +284,18 @@ class Spring {
     let r = pt2.subtract(pt1);
 
     let dl = r.magnitude() - restLength;
-    let f = springConstant * dl;
+    let f = springConstant * Math.floor(dl);
     r.normalize();
 
     let vForce = r.multiply(f).add(vr.multiply(r).multiply(springDamping).multiply(r));
-    // let vForce = vr.multiply(r).multiply(springDamping).multiply(r);
 
     this.p1.addForce(vForce);
     this.p2.addForce(vForce.negative());
+
+    // DEBUG
+    //★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
+    // console.log(Math.floor(dl));
+    //★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
   }
 
   update2() {
