@@ -17,8 +17,8 @@ export default {
   mounted() {
     // 변수 선언
     const spacing = 10;
-    const clothX = 42;
-    const clothY = 42;
+    const clothX = 22;
+    const clothY = 22;
     const gravity = new Vector(0, 3.4);
     // const TIME = 0.016;
     const TIME = 0.035;
