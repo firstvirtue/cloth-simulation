@@ -22,6 +22,7 @@ export default {
     const gravity = new Vector(0, 31.4);
 
     let particles = [];
+    let currentParticle;
 
     // 관계 생성
     for (var y = 0; y < clothY; y++) {
@@ -51,13 +52,28 @@ export default {
     let ctx = canvas.getContext('2d');
     ctx.strokeStyle = '#555';
 
+    let getClosestParticle = function() {
+      let dist;
+
+      particles.forEach(particle => {
+        // dist =
+      });
+      return particles[particles.length - 1];
+    }
 
     canvas.onmousedown = (e) => {
       mouse.down = true;
+
+      currentParticle = getClosestParticle(mouse);
+      currentParticle.setCurrent();
     };
 
     canvas.onmousemove = mousemove;
-    canvas.onmouseup = () => { mouse.down = false; }
+    canvas.onmouseup = () => {
+      mouse.down = false;
+
+      currentParticle.free();
+    }
 
     function mousemove(e) {
       let rect = canvas.getBoundingClientRect()
@@ -65,6 +81,8 @@ export default {
       mouse.py = mouse.y
       mouse.x = e.clientX - rect.left
       mouse.y = e.clientY - rect.top
+
+      currentParticle.setPosition(mouse.x, mouse.y);
     }
 
     let mouse = {
@@ -78,7 +96,7 @@ export default {
 
       // 힘 계산
       particles.forEach((particle, i) => {
-        particle.updateMouse(mouse);
+        // particle.updateMouse(mouse);
         // particle.addForce(gravity);
 
         particle.updateSpring();
@@ -168,10 +186,26 @@ class Point extends DebugObject {
     this.vAcceleration = new Vector(0, 0);
     this.springs = [];
     this.mass = 0.2;
+    this.isCurrent = false;
   }
 
   attach(p) {
     this.springs.push(new Spring(this, p));
+  }
+
+  setPosition(x, y) {
+    if(this.isCurrent) {
+      this.vPosition.x = x;
+      this.vPosition.y = y;
+    }
+  }
+
+  setCurrent() {
+    this.isCurrent = true;
+  }
+
+  free() {
+    this.isCurrent = false;
   }
 
   updateMouse(mouse) {
