@@ -240,7 +240,8 @@ class Point extends DebugObject {
   }
 
   updateFluidDrag() {
-    let f = this.vVelocity.multiply(-0.8);
+    // let f = this.vVelocity.multiply(-0.8);
+    let f = this.vVelocity.multiply(-1.0);
     this.addForce(f);
   }
 
@@ -309,7 +310,8 @@ class Spring {
   }
 
   update2() {
-    const springConstant = 318;
+    // const springConstant = 318;
+    const springConstant = 618;
     const dampingConstant = 20;
 
     let pt1 = this.p1.vPosition;

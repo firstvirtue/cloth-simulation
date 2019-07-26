@@ -25,6 +25,7 @@ For detailed explanation on how things work, checkout the [Nuxt.js docs](https:/
 사이트
 - https://codepen.io/dissimulate/pen/eZxEBO
 - http://andrew.wang-hoyer.com/experiments/cloth/
+- https://burakkanber.com/blog/physics-in-javascript-car-suspension-part-1-spring-mass-damper/
 
 도서
 - 게임 개발자를 위한 물리
