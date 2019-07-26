@@ -17,11 +17,11 @@ export default {
   mounted() {
     // 변수 선언
     const spacing = 20;
-    const clothX = 30;
-    const clothY = 30;
+    const clothX = 35;
+    const clothY = 35;
     const gravity = new Vector(0, 3.4);
     // const TIME = 0.016;
-    const TIME = 0.035;
+    const TIME = 0.05 * 0.5;
 
     let particles = [];
     let currentParticle;
@@ -158,6 +158,10 @@ class Vector {
     return Math.sqrt(this.x*this.x + this.y*this.y);
   }
 
+  squaredMagnitude() {
+    return (this.x*this.x) + (this.y*this.y);
+  }
+
   addScaledVector(vector, scale) {
     this.x += vector.x * scale;
     this.y += vector.y * scale;
@@ -229,12 +233,14 @@ class Point extends DebugObject {
 
   updateSpring() {
     this.springs.forEach(spring => {
-      spring.update();
+      // spring.update();
+      spring.update2();
+      // spring.update3();
     });
   }
 
   updateFluidDrag() {
-    let f = this.vVelocity.multiply(-0.5);
+    let f = this.vVelocity.multiply(-0.8);
     this.addForce(f);
   }
 
@@ -276,7 +282,7 @@ class Spring {
 
   update() {
     const springConstant = 58;
-    const springDamping = 15;
+    const dampingConstant = 15;
 
     let pt1 = this.p1.vPosition;
     let v1 = this.p1.vVelocity;
@@ -291,7 +297,7 @@ class Spring {
     let f = springConstant * Math.floor(dl);
     r.normalize();
 
-    let vForce = r.multiply(f).add(vr.multiply(r).multiply(springDamping).multiply(r));
+    let vForce = r.multiply(f).add(vr.multiply(r).multiply(dampingConstant).multiply(r));
 
     this.p1.addForce(vForce);
     this.p2.addForce(vForce.negative());
@@ -303,24 +309,50 @@ class Spring {
   }
 
   update2() {
-    const restLength = 10;
-    const springConstant = 2;
-    const springDamping = 100;
+    const springConstant = 318;
+    const dampingConstant = 20;
 
     let pt1 = this.p1.vPosition;
     let pt2 = this.p2.vPosition;
 
-    let vForce = pt2.subtract(pt1);
-    let magnitude = vForce.magnitude();
+    let v1 = this.p1.vVelocity;
+    let v2 = this.p2.vVelocity;
 
-    magnitude = magnitude - restLength;
-    magnitude *= springConstant;
-    vForce.normalize();
+    let vr = v2.subtract(v1);
+    let r = pt2.subtract(pt1);
 
-    vForce = vForce.multiply(-magnitude);
+    let dl = r.magnitude() - this.restLength;
+
+    r.normalize();
+
+    let vSpring = r.multiply(Math.floor(dl) * springConstant);
+    let vDamper = vr.multiply(dampingConstant);
+
+    // vForce.normalize();
+    // let magnitude = vForce.magnitude();
+
+    let vForce = vDamper.add(vSpring);
 
     this.p1.addForce(vForce);
     this.p2.addForce(vForce.negative());
+  }
+
+
+  update3() {
+    const springConstant = 2;
+    const dampingConstant = 100;
+    const squaredRestLength = this.restLength * this.restLength;
+
+    let pt1 = this.p1.vPosition;
+    let pt2 = this.p2.vPosition;
+    let length = pt2.subtract(pt1);
+
+    let d = length.squaredMagnitude();
+
+    let diff = (-1 * springConstant) * (Math.abs(d) - squaredRestLength) * squaredRestLength;
+
+    this.p1.addForce(this.p1.vPosition.multiply(-diff));
+    this.p2.addForce(this.p2.vPosition.multiply(diff));
   }
 
   draw() {
