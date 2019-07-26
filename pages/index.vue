@@ -7,7 +7,10 @@
 </template>
 
 <script>
-import AppLogo from '~/components/AppLogo.vue'
+import AppLogo from '~/components/AppLogo.vue';
+import Spring from '~/assets/js/module/spring.js';
+import Point from '~/assets/js/module/point.js';
+import Vector from '~/assets/js/module/vector.js';
 
 export default {
   components: {
@@ -110,7 +113,7 @@ export default {
 
       // 힘 계산
       particles.forEach((particle, i) => {
-        // particle.addForce(gravity);
+        particle.addForce(gravity);
         particle.updateFluidDrag();
         particle.updateSpring();
       });
@@ -141,229 +144,6 @@ export default {
   }
 }
 
-class Vector {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-
-  normalize() {
-    let m = Math.sqrt(this.x*this.x + this.y*this.y);
-
-    this.x /= m;
-    this.y /= m;
-  }
-
-  magnitude() {
-    return Math.sqrt(this.x*this.x + this.y*this.y);
-  }
-
-  squaredMagnitude() {
-    return (this.x*this.x) + (this.y*this.y);
-  }
-
-  addScaledVector(vector, scale) {
-    this.x += vector.x * scale;
-    this.y += vector.y * scale;
-  }
-
-  negative() {
-    return new Vector(-this.x, -this.y);
-  }
-
-  add(v) {
-    if(v instanceof Vector) return new Vector(this.x + v.x, this.y + v.y);
-    else return new Vector(this.x + v, this.y + v);
-  }
-
-  subtract(vector) {
-    let v = new Vector(this.x - vector.x, this.y - vector.y);
-    return v;
-  }
-
-  multiply(v) {
-    if(v instanceof Vector) return new Vector(this.x * v.x, this.y * v.y);
-    else return new Vector(this.x * v, this.y * v);
-  }
-
-  clear() {
-    this.x = 0;
-    this.y = 0;
-  }
-}
-
-class DebugObject {
-  constructor() {
-
-  }
-}
-
-// 또는 particle
-class Point extends DebugObject {
-  constructor(x, y) {
-    super();
-
-    this.vPosition = new Vector(x, y);
-    this.vForce = new Vector(0, 0);
-    this.vVelocity = new Vector(0, 0);
-    this.vAcceleration = new Vector(0, 0);
-    this.springs = [];
-    this.mass = 0.5;
-    this.isCurrent = false;
-  }
-
-  attach(p, spacing) {
-    this.springs.push(new Spring(this, p, spacing));
-  }
-
-  setPosition(v) {
-    if(this.isCurrent) {
-      this.vPosition.x = v.x;
-      this.vPosition.y = v.y;
-    }
-  }
-
-  setCurrent() {
-    this.isCurrent = true;
-  }
-
-  free() {
-    this.isCurrent = false;
-  }
-
-  updateSpring() {
-    this.springs.forEach(spring => {
-      // spring.update();
-      spring.update2();
-      // spring.update3();
-    });
-  }
-
-  updateFluidDrag() {
-    // let f = this.vVelocity.multiply(-0.8);
-    let f = this.vVelocity.multiply(-1.0);
-    this.addForce(f);
-  }
-
-  addForce(force, scale = 1) {
-    this.vForce.addScaledVector(force, scale);
-  }
-
-  resolve() {
-
-  }
-
-  updateStep(time) {
-    if(! this.isCurrent) {
-      this.vPosition.addScaledVector(this.vVelocity, time);
-
-      // F = m * a
-      this.vAcceleration = this.vForce.multiply(this.mass);
-
-      this.vVelocity.addScaledVector(this.vAcceleration, time);
-    }
-
-    this.vForce.clear();
-  }
-
-  draw() {
-    this.springs.forEach(spring => {
-      spring.draw();
-    });
-  }
-}
-
-// 또는 constraint
-class Spring {
-  constructor(p1, p2, spacing) {
-    this.p1 = p1;
-    this.p2 = p2;
-    this.restLength = spacing;
-  }
-
-  update() {
-    const springConstant = 58;
-    const dampingConstant = 15;
-
-    let pt1 = this.p1.vPosition;
-    let v1 = this.p1.vVelocity;
-
-    let pt2 = this.p2.vPosition;
-    let v2 = this.p2.vVelocity;
-
-    let vr = v2.subtract(v1);
-    let r = pt2.subtract(pt1);
-
-    let dl = r.magnitude() - this.restLength;
-    let f = springConstant * Math.floor(dl);
-    r.normalize();
-
-    let vForce = r.multiply(f).add(vr.multiply(r).multiply(dampingConstant).multiply(r));
-
-    this.p1.addForce(vForce);
-    this.p2.addForce(vForce.negative());
-
-    // DEBUG
-    //★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-    // console.log(Math.floor(dl));
-    //★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★★
-  }
-
-  update2() {
-    // const springConstant = 318;
-    const springConstant = 618;
-    const dampingConstant = 20;
-
-    let pt1 = this.p1.vPosition;
-    let pt2 = this.p2.vPosition;
-
-    let v1 = this.p1.vVelocity;
-    let v2 = this.p2.vVelocity;
-
-    let vr = v2.subtract(v1);
-    let r = pt2.subtract(pt1);
-
-    let dl = r.magnitude() - this.restLength;
-
-    r.normalize();
-
-    let vSpring = r.multiply(Math.floor(dl) * springConstant);
-    let vDamper = vr.multiply(dampingConstant);
-
-    // vForce.normalize();
-    // let magnitude = vForce.magnitude();
-
-    let vForce = vDamper.add(vSpring);
-
-    this.p1.addForce(vForce);
-    this.p2.addForce(vForce.negative());
-  }
-
-
-  update3() {
-    const springConstant = 2;
-    const dampingConstant = 100;
-    const squaredRestLength = this.restLength * this.restLength;
-
-    let pt1 = this.p1.vPosition;
-    let pt2 = this.p2.vPosition;
-    let length = pt2.subtract(pt1);
-
-    let d = length.squaredMagnitude();
-
-    let diff = (-1 * springConstant) * (Math.abs(d) - squaredRestLength) * squaredRestLength;
-
-    this.p1.addForce(this.p1.vPosition.multiply(-diff));
-    this.p2.addForce(this.p2.vPosition.multiply(diff));
-  }
-
-  draw() {
-    let ctx = canvas.getContext('2d');
-
-    ctx.moveTo(this.p1.vPosition.x, this.p1.vPosition.y);
-    ctx.lineTo(this.p2.vPosition.x, this.p2.vPosition.y);
-  }
-}
 </script>
 
 <style>
