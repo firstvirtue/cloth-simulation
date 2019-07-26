@@ -16,9 +16,9 @@ export default {
   },
   mounted() {
     // 변수 선언
-    const spacing = 10;
-    const clothX = 22;
-    const clothY = 22;
+    const spacing = 20;
+    const clothX = 30;
+    const clothY = 30;
     const gravity = new Vector(0, 3.4);
     // const TIME = 0.016;
     const TIME = 0.035;
@@ -31,8 +31,8 @@ export default {
       for (var x = 0; x < clothX; x++) {
         let point = new Point(x*spacing, y*spacing);
 
-        x!==0 && point.attach(particles[particles.length - 1]); // X
-        y!==0 && point.attach(particles[(x) + (y-1) * (clothX)]); // Y
+        x!==0 && point.attach(particles[particles.length - 1], spacing); // X
+        y!==0 && point.attach(particles[(x) + (y-1) * (clothX)], spacing); // Y
         particles.push(point);
       }
     }
@@ -111,7 +111,7 @@ export default {
       // 힘 계산
       particles.forEach((particle, i) => {
         // particle.addForce(gravity);
-
+        particle.updateFluidDrag();
         particle.updateSpring();
       });
 
@@ -122,7 +122,6 @@ export default {
 
       // 그리기
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       ctx.beginPath();
       particles.forEach((particle) => {
         particle.draw();
@@ -209,8 +208,8 @@ class Point extends DebugObject {
     this.isCurrent = false;
   }
 
-  attach(p) {
-    this.springs.push(new Spring(this, p));
+  attach(p, spacing) {
+    this.springs.push(new Spring(this, p, spacing));
   }
 
   setPosition(v) {
@@ -232,6 +231,11 @@ class Point extends DebugObject {
     this.springs.forEach(spring => {
       spring.update();
     });
+  }
+
+  updateFluidDrag() {
+    let f = this.vVelocity.multiply(-0.5);
+    this.addForce(f);
   }
 
   addForce(force, scale = 1) {
@@ -264,13 +268,13 @@ class Point extends DebugObject {
 
 // 또는 constraint
 class Spring {
-  constructor(p1, p2) {
+  constructor(p1, p2, spacing) {
     this.p1 = p1;
     this.p2 = p2;
+    this.restLength = spacing;
   }
 
   update() {
-    const restLength = 10;
     const springConstant = 58;
     const springDamping = 15;
 
@@ -283,7 +287,7 @@ class Spring {
     let vr = v2.subtract(v1);
     let r = pt2.subtract(pt1);
 
-    let dl = r.magnitude() - restLength;
+    let dl = r.magnitude() - this.restLength;
     let f = springConstant * Math.floor(dl);
     r.normalize();
 
