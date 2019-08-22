@@ -7,15 +7,15 @@
 </template>
 
 <script>
-import * as THREE from 'three';
-import AppLogo from '~/components/AppLogo.vue';
+// import AppLogo from '~/components/AppLogo.vue';
 import Spring from '~/assets/js/module/spring.js';
 import Point from '~/assets/js/module/point.js';
 import Vector from '~/assets/js/module/vector.js';
+import * as THREE from 'three';
 
 export default {
   components: {
-    AppLogo
+    // AppLogo
 
   },
   mounted() {
@@ -38,7 +38,7 @@ export default {
     // 관계 생성
     for (var y = 0; y < this.clothW; y++) {
       for (var x = 0; x < this.clothH; x++) {
-        let point = new Point(x*this.spacing, y*this.spacing);
+        let point = new Point(x * this.spacing - (this.clothW * this.spacing / 2), y * this.spacing - (this.clothH * this.spacing / 2));
 
         x!==0 && point.attach(particles[particles.length - 1], this.spacing); // X
         y!==0 && point.attach(particles[(x) + (y-1) * (this.clothW)], this.spacing); // Y
@@ -57,20 +57,24 @@ export default {
     }
 
     let canvas = document.getElementById('canvas');
-    canvas.width = window.innerWidth - 20;
-    canvas.height = window.innerHeight - 20;
+    // canvas.width = window.innerWidth - 20;
+    // canvas.height = window.innerHeight - 20;
     // let ctx = canvas.getContext('2d');
     // ctx.strokeStyle = '#555';
 
-    this.init(canvas);
+    this.init(canvas, particles);
 
-    let getClosestParticle = function(mouse) {
+    let getClosestParticle = function(vertex) {
+      if(vertex === undefined) return;
+
       let dist,
         minDist = 200,
         minParticle = null;
 
+      const vVertex = new Vector(vertex.point.x, vertex.point.y);
+
       particles.forEach(particle => {
-        dist = particle.vPosition.subtract(mouse.vPosition).magnitude();
+        dist = particle.vPosition.subtract(vVertex).magnitude();
 
         if(dist < minDist) {
           minDist = dist;
@@ -83,31 +87,58 @@ export default {
 
     canvas.onmousedown = (e) => {
       mouse.down = true;
-      getMouse(e);
 
-      currentParticle = getClosestParticle(mouse);
-      currentParticle.setCurrent();
+      currentParticle = getClosestParticle(self.raycast(e));
+      // console.log(self.raycast(e));
+      if(currentParticle !== undefined && currentParticle !== null) {
+        currentParticle.setCurrent();
+      }
     };
 
     canvas.onmousemove = mousemove;
 
     canvas.onmouseup = () => {
       mouse.down = false;
-      currentParticle.free();
+      if(currentParticle !== undefined) {
+        currentParticle.free();
+      }
     }
 
     function mousemove(e) {
-      getMouse(e);
-
-      if(currentParticle)
-        currentParticle.setPosition(mouse.vPosition);
+      if(mouse.down) {
+        if(currentParticle) {
+          getMouse(e);
+          // [TODO] 마우스 좌표
+          currentParticle.setPosition(mouse.vPosition);
+        }
+      }
     }
 
     function getMouse(e) {
-      let rect = canvas.getBoundingClientRect()
+      let vec = new THREE.Vector3();
+      let pos = new THREE.Vector3();
 
-      mouse.vPosition.x = e.clientX - rect.left
-      mouse.vPosition.y = e.clientY - rect.top
+      vec.set(
+        (e.clientX / window.innerWidth) * 2 - 1,
+        - (e.clientY / window.innerHeight) * 2 + 1,
+        0.5
+      );
+
+      vec.unproject(self.camera);
+      vec.sub(self.camera.position).normalize();
+      let distance = - self.camera.position.z / vec.z;
+      pos.copy(self.camera.position).add(vec.multiplyScalar(distance));
+
+      mouse.vPosition.x = pos.x;
+      mouse.vPosition.y = pos.y;
+      // let rect = canvas.getBoundingClientRect();
+
+      // mouse.vPosition.x = e.clientX - rect.left
+      // mouse.vPosition.y = e.clientY - rect.top
+
+      // mouse.vPosition.x = (e.clientX / window.innerWidth) * 2 - 1;
+	    // mouse.vPosition.y = - (e.clientY / window.innerHeight) * 2 + 1;
+
     }
 
     let mouse = {
@@ -138,14 +169,12 @@ export default {
       // });
       // ctx.stroke();
 
+      // 그리기
       for (var i = 0; i < particles.length; i++) {
         let v = particles[i].vPosition;
-
         self.clothGeometry.vertices[i].x = v.x;
         self.clothGeometry.vertices[i].y = v.y;
       }
-
-      console.log(`particle: ${particles.length}, vertices: ${self.clothGeometry.vertices.length}`);
 
       //
       self.clothGeometry.verticesNeedUpdate  = true;
@@ -164,7 +193,7 @@ export default {
 
   },
   methods: {
-    init(canvas) {
+    init(canvas, particles) {
 
       // scene
       this.scene = new THREE.Scene();
@@ -172,7 +201,8 @@ export default {
       this.scene.fog = new THREE.Fog(0xcce0ff, 500, 10000);
 
       // camera
-      this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+      this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 10, 10000);
+      this.camera.lookAt(this.scene.position);
       this.camera.position.set(0, 0, 500);
 
       // light
@@ -209,18 +239,19 @@ export default {
 				};
 			}
 
-      var geometry = new THREE.BoxGeometry(1, 1, 1);
-      var cubematerial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-      var cube = new THREE.Mesh(geometry, cubematerial);
-      this.scene.add(cube);
+      // var geometry = new THREE.BoxGeometry(1, 1, 1);
+      // var cubematerial = new THREE.MeshBasicMaterial({color: 0x00ff00});
+      // var cube = new THREE.Mesh(geometry, cubematerial);
+      // this.scene.add(cube);
 
       var loader = new THREE.TextureLoader();
       var clothTexture = loader.load('textures/patterns/circuit_pattern.png');
+      // var clothTexture = loader.load('textures/patterns/black-linen-2.png');
       clothTexture.anisotropy = 16;
       var clothMaterial = new THREE.MeshLambertMaterial({
         map: clothTexture,
         side: THREE.DoubleSide,
-        alphaTest: 0.5
+        alphaTest: 0.1
       });
 
       this.clothGeometry = new THREE.PlaneGeometry(this.clothW * this.spacing, this.clothH * this.spacing , this.clothW - 1, this.clothH - 1);
@@ -228,19 +259,51 @@ export default {
 
       // cloth mesh
 			this.object = new THREE.Mesh(this.clothGeometry, clothMaterial);
-      this.object.position.set( 0, 0, 0 );
+      this.object.position.set(0, 0, 0);
       this.object.castShadow = true;
       this.scene.add(this.object);
 
       // renderer
-      this.renderer = new THREE.WebGLRenderer( { antialias: true, canvas: canvas } );
-			this.renderer.setPixelRatio( window.devicePixelRatio );
-			this.renderer.setSize( window.innerWidth, window.innerHeight );
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, canvas: canvas });
+			this.renderer.setPixelRatio(window.devicePixelRatio);
+			this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-      // this.renderer.gammaInput = true;
-			// this.renderer.gammaOutput = true;
-			// this.renderer.shadowMap.enabled = true;
+      this.renderer.gammaInput = true;
+			this.renderer.gammaOutput = true;
+			this.renderer.shadowMap.enabled = true;
 
+      this.raycaster = new THREE.Raycaster();
+      this.mouse = { x: 0, y: 0 };
+
+      for (var i = 0; i < particles.length; i++) {
+        let v = particles[i].vPosition;
+        this.clothGeometry.vertices[i].x = v.x;
+        this.clothGeometry.vertices[i].y = v.y;
+      }
+
+    },
+    raycast(e) {
+
+      // let vector = new THREE.Vector3();
+      // vector.set((e.clientX / window.innerWidth) * 2 - 1, - (e.clientY / window.innerHeight) * 2 + 1, 0.5); // z = 0.5 important!
+      // vector.unproject(this.camera);
+      // this.raycaster.set(this.camera.position, vector.sub(this.camera.position).normalize());
+
+
+      this.mouse.x = ( e.clientX / window.innerWidth ) * 2 - 1;
+      this.mouse.y = - ( e.clientY / window.innerHeight ) * 2 + 1;
+
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+
+      // NOTE 버텍스 위치가 움직이기 때문에 raycater가 재계산 할 수 있도록 초기화
+      this.clothGeometry.boundingSphere = null;
+      this.clothGeometry.boundingBox = null;
+      // let intersects = this.raycaster.intersectObjects(this.scene.children);
+      let intersects = this.raycaster.intersectObject(this.object);
+
+      if(intersects.length > 0) {
+        return intersects[0];
+      }
     }
   }
 }
