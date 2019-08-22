@@ -1,8 +1,12 @@
+/*
+시뮬레이션 될 천(cloth) 모델의 구성요소인 점 모델
+위치, 속도, 가속도, 질량 등의 변수와 점과 점의 관계 요소인 spring 객체를 가짐
+*/
+
 import Vector from '~/assets/js/module/vector.js';
 import DebugObject from '~/assets/js/module/debug-object.js';
 import Spring from '~/assets/js/module/spring.js';
 
-// 또는 particle
 class Point extends DebugObject {
   constructor(x, y) {
     super();

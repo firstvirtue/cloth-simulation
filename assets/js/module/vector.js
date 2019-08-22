@@ -1,3 +1,7 @@
+/*
+2차원 벡터 클래스, three.js 사용 이전에 만든 클래스로 three.js에서 사용하는 벡터 클래스로 대체 가능
+*/
+
 class Vector {
   constructor(x, y) {
     this.x = x;
@@ -5,14 +9,14 @@ class Vector {
   }
 
   normalize() {
-    let m = Math.sqrt(this.x*this.x + this.y*this.y);
+    let m = Math.sqrt(this.x * this.x + this.y * this.y);
 
     this.x /= m;
     this.y /= m;
   }
 
   magnitude() {
-    return Math.sqrt(this.x*this.x + this.y*this.y);
+    return Math.sqrt(this.x * this.x + this.y * this.y);
   }
 
   squaredMagnitude() {
