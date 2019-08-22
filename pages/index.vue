@@ -245,13 +245,15 @@ export default {
       // this.scene.add(cube);
 
       var loader = new THREE.TextureLoader();
-      var clothTexture = loader.load('textures/patterns/circuit_pattern.png');
-      // var clothTexture = loader.load('textures/patterns/black-linen-2.png');
+      // var clothTexture = loader.load('textures/patterns/circuit_pattern.png');
+      var clothTexture = loader.load('textures/patterns/black-linen-2.png');
+      // var clothTexture = loader.load('textures/patterns/absurdity.png');
       clothTexture.anisotropy = 16;
       var clothMaterial = new THREE.MeshLambertMaterial({
         map: clothTexture,
         side: THREE.DoubleSide,
-        alphaTest: 0.1
+        color: 0xff0000,
+        alphaTest: 0.5
       });
 
       this.clothGeometry = new THREE.PlaneGeometry(this.clothW * this.spacing, this.clothH * this.spacing , this.clothW - 1, this.clothH - 1);
