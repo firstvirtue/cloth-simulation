@@ -39,7 +39,7 @@ class Spring {
   }
 
   update2() {
-    const springConstant = 518;
+    const springConstant = 1018;
     // const springConstant = 618;
     const dampingConstant = 25;
 
