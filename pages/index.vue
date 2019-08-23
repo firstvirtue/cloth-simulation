@@ -16,7 +16,8 @@ export default {
   components: { },
   mounted() {
     const gravity = new Vector(0, 3.4);
-    const TIME = 0.05 * 0.5;
+    // const TIME = 0.05 * 0.5;
+    const TIME = 0.05 * 0.4;
 
     this.spacing = 20;
     this.clothW = 25;
