@@ -15,7 +15,7 @@ import * as THREE from 'three';
 export default {
   components: { },
   mounted() {
-    const gravity = new Vector(0, 3.4);
+    const buoyancy = new Vector(0, 3.4);
     // const TIME = 0.05 * 0.5;
     const TIME = 0.05 * 0.4;
 
@@ -131,7 +131,7 @@ export default {
 
       // 1. 힘 계산
       particles.forEach((particle, i) => {
-        particle.addForce(gravity);
+        particle.addForce(buoyancy);
         particle.updateFluidDrag();
         particle.updateSpring();
       });
