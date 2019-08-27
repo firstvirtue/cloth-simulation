@@ -17,7 +17,7 @@ export default {
   mounted() {
     const buoyancy = new Vector(0, 3.4);
     // const TIME = 0.05 * 0.5;
-    const TIME = 0.05 * 0.4;
+    const TIME = 0.05 * 0.41;
 
     this.spacing = 20;
     this.clothW = 25;

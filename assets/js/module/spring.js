@@ -78,12 +78,17 @@ class Spring {
     let pt2 = this.p2.vPosition;
     let length = pt2.subtract(pt1);
 
+    var p1_im = this.p1.mass;
+		var p2_im = this.p2.mass;
+
     let d = length.squaredMagnitude();
 
-    let diff = (-1 * springConstant) * (Math.abs(d) - squaredRestLength) * squaredRestLength;
+    // let diff = (-1 * springConstant) * (Math.abs(d) - squaredRestLength) * squaredRestLength;
 
-    this.p1.addForce(this.p1.vPosition.multiply(-diff));
-    this.p2.addForce(this.p2.vPosition.multiply(diff));
+    var diff = (d - squaredRestLength) / ((squaredRestLength + d) * (p1_im + p2_im));
+
+    this.p1.addForce(this.p1.vPosition.multiply(-diff * p1_im));
+    this.p2.addForce(this.p2.vPosition.multiply(diff * p1_im));
   }
 
   draw() {

@@ -43,6 +43,7 @@ class Point extends DebugObject {
     this.springs.forEach(spring => {
       // spring.update();
       spring.update2();
+      // spring.update3();
     });
   }
 
