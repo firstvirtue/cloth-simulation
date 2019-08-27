@@ -16,12 +16,12 @@ export default {
   components: { },
   mounted() {
     const buoyancy = new Vector(0, 3.4);
-    // const TIME = 0.05 * 0.5;
-    const TIME = 0.05 * 0.41;
+    const TIME = 0.05 * 0.8;
+    // const TIME = 0.05 * 0.41;
 
-    this.spacing = 20;
-    this.clothW = 25;
-    this.clothH = 25;
+    this.spacing = 40;
+    this.clothW = 10;
+    this.clothH = 10;
 
     let particles = [];
     let currentParticle;
@@ -148,6 +148,7 @@ export default {
         let v = particles[i].vPosition;
         self.clothGeometry.vertices[i].x = v.x;
         self.clothGeometry.vertices[i].y = v.y;
+        self.clothGeometry.vertices[i].z = v.z;
       }
       self.renderer.render(self.scene, self.camera);
 
@@ -168,7 +169,7 @@ export default {
       // camera
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 10, 10000);
       this.camera.lookAt(this.scene.position);
-      this.camera.position.set(0, 0, 500);
+      this.camera.position.set(0, 0, 1000);
 
       // light
       // [TODO] light를 수정하여 사실적인 질감을 줄 수 있음.

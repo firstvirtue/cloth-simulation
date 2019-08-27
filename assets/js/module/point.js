@@ -28,6 +28,7 @@ class Point extends DebugObject {
     if(this.isCurrent) {
       this.vPosition.x = v.x;
       this.vPosition.y = v.y;
+      this.vPosition.z = 0.1;
     }
   }
 
@@ -41,8 +42,8 @@ class Point extends DebugObject {
 
   updateSpring() {
     this.springs.forEach(spring => {
-      // spring.update();
-      spring.update2();
+      spring.update();
+      // spring.update2();
       // spring.update3();
     });
   }

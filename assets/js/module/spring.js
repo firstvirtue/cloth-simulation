@@ -11,8 +11,8 @@ class Spring {
   }
 
   update() {
-    const springConstant = 58;
-    const dampingConstant = 15;
+    const springConstant = 100;
+    const dampingConstant = 10;
 
     let pt1 = this.p1.vPosition;
     let v1 = this.p1.vVelocity;
@@ -24,6 +24,7 @@ class Spring {
     let r = pt2.subtract(pt1);
 
     let dl = r.magnitude() - this.restLength;
+
     let f = springConstant * Math.floor(dl);
     r.normalize();
 
@@ -70,25 +71,22 @@ class Spring {
 
 
   update3() {
-    const springConstant = 2;
-    const dampingConstant = 100;
-    const squaredRestLength = this.restLength * this.restLength;
+    const springConstant = 200;
+    const dampingConstant = 10;
 
     let pt1 = this.p1.vPosition;
     let pt2 = this.p2.vPosition;
-    let length = pt2.subtract(pt1);
+    let diff = pt2.subtract(pt1);
 
-    var p1_im = this.p1.mass;
-		var p2_im = this.p2.mass;
+    let dist = diff.magnitude();
 
-    let d = length.squaredMagnitude();
+    if(dist === 0) return;
 
-    // let diff = (-1 * springConstant) * (Math.abs(d) - squaredRestLength) * squaredRestLength;
+    let correction = diff.multiply(1 - this.restLength / dist);
+    let half = correction.multiply(0.5);
 
-    var diff = (d - squaredRestLength) / ((squaredRestLength + d) * (p1_im + p2_im));
-
-    this.p1.addForce(this.p1.vPosition.multiply(-diff * p1_im));
-    this.p2.addForce(this.p2.vPosition.multiply(diff * p1_im));
+    this.p1.addForce(this.p1.vPosition.multiply(-correction));
+    this.p2.addForce(this.p2.vPosition.multiply(correction));
   }
 
   draw() {
