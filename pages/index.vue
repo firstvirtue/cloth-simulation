@@ -16,12 +16,12 @@ export default {
   components: { },
   mounted() {
     const buoyancy = new Vector(0, 3.4);
-    const TIME = 0.05 * 0.8;
+    const TIME = 0.05 * 0.9;
     // const TIME = 0.05 * 0.41;
 
-    this.spacing = 40;
-    this.clothW = 10;
-    this.clothH = 10;
+    this.spacing = 50;
+    this.clothW = 12;
+    this.clothH = 12;
 
     let particles = [];
     let currentParticle;
@@ -151,7 +151,6 @@ export default {
         self.clothGeometry.vertices[i].z = v.z;
       }
       self.renderer.render(self.scene, self.camera);
-
 
       window.requestAnimFrame(update);
     })(0);

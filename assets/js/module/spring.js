@@ -11,7 +11,7 @@ class Spring {
   }
 
   update() {
-    const springConstant = 100;
+    const springConstant = 35;
     const dampingConstant = 10;
 
     let pt1 = this.p1.vPosition;

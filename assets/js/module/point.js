@@ -16,7 +16,7 @@ class Point extends DebugObject {
     this.vVelocity = new Vector(0, 0);
     this.vAcceleration = new Vector(0, 0);
     this.springs = [];
-    this.mass = 0.5;
+    this.mass = 0.7;
     this.isCurrent = false;
   }
 
@@ -49,9 +49,9 @@ class Point extends DebugObject {
   }
 
   updateFluidDrag() {
-    // let f = this.vVelocity.multiply(-0.8);
+    let f = this.vVelocity.multiply(-0.2);
     // let f = this.vVelocity.multiply(-1.0);
-    let f = this.vVelocity.multiply(-0.5);
+    // let f = this.vVelocity.multiply(-0.5);
     this.addForce(f);
   }
 
