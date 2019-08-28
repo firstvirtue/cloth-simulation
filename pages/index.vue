@@ -16,12 +16,12 @@ export default {
   components: { },
   mounted() {
     const buoyancy = new Vector(0, 3.4);
-    const TIME = 0.05 * 0.9;
+    const TIME = 0.05 * 0.8;
     // const TIME = 0.05 * 0.41;
 
-    this.spacing = 50;
-    this.clothW = 12;
-    this.clothH = 12;
+    this.spacing = 60;
+    this.clothW = 20;
+    this.clothH = 20;
 
     let particles = [];
     let currentParticle;
@@ -118,7 +118,7 @@ export default {
 
       mouse.vPosition.x = pos.x;
       mouse.vPosition.y = pos.y;
-      mouse.vPosition.z = 0.1;
+      mouse.vPosition.z = 0;
     }
 
     let mouse = {
@@ -192,18 +192,23 @@ export default {
       // 모델에 입힐 이미지 텍스쳐를 로드한다.
       // [TODO] Material을 수정하여 사실적인 질감을 줄 수 있음.
       var loader = new THREE.TextureLoader();
-      var clothTexture = loader.load('textures/patterns/circuit_pattern.png');
+      var clothTexture = loader.load('textures/patterns/black-linen.png');
       clothTexture.anisotropy = 16;
       var clothMaterial = new THREE.MeshLambertMaterial({
         map: clothTexture,
         side: THREE.DoubleSide,
-        color: 0xaaaaaa,
-        alphaTest: 0.9
+        alphaTest: 0.05,
+        opacity: 0.3,
+        transparent: true
       });
 
       // 모델의 뼈대, 기하구조를 생성
       this.clothGeometry = new THREE.PlaneGeometry(this.clothW * this.spacing, this.clothH * this.spacing , this.clothW - 1, this.clothH - 1);
-      const material = new THREE.MeshBasicMaterial({ color: '#ff3030' });
+      var material = new THREE.MeshBasicMaterial( {
+					// opacity: 0.85,
+					// transparent: true,
+          color: 0xdf0000
+				} );
 
       // 지오메트리와 머티리얼을 이용해 실제 그려질 메쉬를 생성하여 씬에 넣음
 			this.object = new THREE.Mesh(this.clothGeometry, clothMaterial);
