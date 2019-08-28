@@ -118,6 +118,7 @@ export default {
 
       mouse.vPosition.x = pos.x;
       mouse.vPosition.y = pos.y;
+      mouse.vPosition.z = 0.1;
     }
 
     let mouse = {

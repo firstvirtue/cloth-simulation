@@ -26,9 +26,36 @@ class Point extends DebugObject {
 
   setPosition(v) {
     if(this.isCurrent) {
+
+      // const springConstant = 20;
+      // const restLength = 20;
+      //
+      // let diff = this.vPosition.subtract(v);
+      //
+      // let m = diff.magnitude();
+      // let dl = m - restLength;
+      //
+      // if(dl > 40) {
+      //   dl = restLength;
+      // }
+      //
+      // dl = dl * springConstant;
+      // diff.normalize();
+      // let force = diff.multiply(-dl);
+      //
+      // // console.log(force);
+      //
+      // this.addForce(force);
+      //
+      // // diff.normalize();
+      //
+      // // console.log(diff.multiply(50).negative());
+
+
+
       this.vPosition.x = v.x;
       this.vPosition.y = v.y;
-      this.vPosition.z = 0.1;
+      this.vPosition.z = v.z;
     }
   }
 
@@ -41,6 +68,8 @@ class Point extends DebugObject {
   }
 
   updateSpring() {
+    // if(this.isCurrent) return;
+
     this.springs.forEach(spring => {
       spring.update();
       // spring.update2();
