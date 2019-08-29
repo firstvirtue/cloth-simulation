@@ -3,6 +3,8 @@
 위치, 속도, 가속도, 질량 등의 변수와 점과 점의 관계 요소인 spring 객체를 가짐
 */
 
+'use strict';
+
 import Vector from '~/assets/js/module/vector.js';
 import DebugObject from '~/assets/js/module/debug-object.js';
 import Spring from '~/assets/js/module/spring.js';

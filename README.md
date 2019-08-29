@@ -1,8 +1,17 @@
 # cloth-simulation
 
-> Nuxt.js project
+> 천 휘두르기 시뮬레이션/렌더링
+> 부제: 첫술에 배부르랴
+
+## 기술 스택
+- 피직스 시뮬레이션 - 훅의 법칙
+파티클 - 파티클 사이의 스프링 관계식
+- Three.js
+파티클을 정점으로 만든 메시와 재질 렌더링
+- Shader
 
 ## Build Setup
+Nuxt 기본 프로젝트 세팅
 
 ``` bash
 # install dependencies
@@ -19,8 +28,6 @@ $ npm start
 $ npm run generate
 ```
 
-For detailed explanation on how things work, checkout the [Nuxt.js docs](https://github.com/nuxt/nuxt.js).
-
 ## 참고
 ### 사이트
 물리 관련
@@ -35,5 +42,5 @@ For detailed explanation on how things work, checkout the [Nuxt.js docs](https:/
 - https://stackoverflow.com/questions/29583881/raycaster-intersection-isnt-accurate-after-moving-vertices (움직이는 객체의 위치 정보 갱신)
 
 ### 도서
-- 게임 개발자를 위한 물리 (spring.js의 update2() 메서드 알고리즘)
+- 게임 개발자를 위한 물리 (spring.js의 update() 메서드 알고리즘)
 - 게임 물리 엔진 개발

@@ -3,6 +3,8 @@
 constraint라는 이름이 더 적절할 수 있겠다.(다른 샘플들을 보면 이렇게 많이 사용함)
 */
 
+'use strict';
+
 class Spring {
   constructor(p1, p2, spacing) {
     this.p1 = p1;

@@ -2,6 +2,8 @@
 2차원 벡터 클래스, three.js 사용 이전에 만든 클래스로 three.js에서 사용하는 벡터 클래스로 대체 가능
 */
 
+'use strict';
+
 class Vector {
   constructor(x, y, z = 0) {
     this.x = x;
@@ -19,10 +21,6 @@ class Vector {
 
   magnitude() {
     return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-  }
-
-  squaredMagnitude() {
-    return (this.x * this.x) + (this.y * this.y) + (this.z * this.z);
   }
 
   addScaledVector(vector, scale) {
