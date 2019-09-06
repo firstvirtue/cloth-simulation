@@ -23,6 +23,18 @@ class RenderEngine {
     this.setDirectionalLight();
     // this.setPointLight();
 
+    let spotLight = this.createSpotlight(0xFF7F00);
+    let lightHelper = new THREE.SpotLightHelper(spotLight);
+    spotLight.position.set(-150, 600, 100);
+
+    let target = new THREE.Object3D();
+    target.position.set(50, -50, 200);
+    spotLight.target = target;
+
+    this.scene.add(spotLight);
+    this.scene.add(spotLight.target);
+    this.scene.add(lightHelper);
+
     // 모델에 입힐 이미지 텍스쳐를 로드한다.
     // [TODO] Material을 수정하여 사실적인 질감을 줄 수 있음.
     let loader = new THREE.TextureLoader();
@@ -66,6 +78,18 @@ class RenderEngine {
 
     this.raycaster = new THREE.Raycaster();
     this.mouse = { x: 0, y: 0 };
+  }
+
+  createSpotlight(color) {
+    let newObj = new THREE.SpotLight(color, 2);
+
+    newObj.castShadow = true;
+    newObj.angle = 0.3;
+    newObj.penumbra = 0.2;
+    newObj.decay = 2;
+    newObj.distance = 500;
+
+    return newObj;
   }
 
   setDirectionalLight() {
