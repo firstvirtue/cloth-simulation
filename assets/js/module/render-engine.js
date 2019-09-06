@@ -33,8 +33,11 @@ class RenderEngine {
     clothTexture.magFilter = THREE.NearestFilter;
     let clothMaterial = new THREE.MeshPhongMaterial({
       map: clothTexture,
+      specular: 0x222222,
       side: THREE.DoubleSide,
-      transparent: true
+      shininess: 30,
+      transparent: true,
+      flatShading: true
     });
 
     // 모델의 뼈대, 기하구조를 생성
