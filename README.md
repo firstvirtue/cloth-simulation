@@ -150,39 +150,39 @@ vec.set(
   (e.clientX / window.innerWidth) * 2 - 1,
   - (e.clientY / window.innerHeight) * 2 + 1,
   0.5
-  );
+);
 
-  vec.unproject(this.camera);
-  vec.sub(this.camera.position).normalize();
-  let distance = - this.camera.position.z / vec.z;
-  pos.copy(this.camera.position).add(vec.multiplyScalar(distance));
+vec.unproject(this.camera);
+vec.sub(this.camera.position).normalize();
+let distance = - this.camera.position.z / vec.z;
+pos.copy(this.camera.position).add(vec.multiplyScalar(distance));
 
-  return {
-    x: pos.x,
-    y: pos.y,
-    z: 0
-  }
+return {
+  x: pos.x,
+  y: pos.y,
+  z: 0
+}
   ```
-  확인해 보니 거의 공식과 같은 마우스 위치 정보 함수다.
-  마우스의 최초 위치 설정은 -1 ~ 1까지로 px단위의 좌표랑은 상이한데 이는 카메라 좌표계를 역으로 이용하기 위한 것으로 보인다. 이렇게 하여 원하는 픽셀 단위의 좌표를 가져와 그 위치로 선택된 정점의 위치를 갱신한다.
-  이렇게 되면 선택된 정점과 연결된 점이 따라 올 것이고 또 그에 연결된 점들이 순차적으로 따라오게 된다. 스프링-댐퍼 방정식에 의해 마치 스프링처럼 원래 길이보다 크면 줄어들고 작으면 늘어나는 힘의 작용을 통해 천 시뮬레이션이 완성된다.
+확인해 보니 거의 공식과 같은 마우스 위치 정보 함수다.
+마우스의 최초 위치 설정은 -1 ~ 1까지로 px단위의 좌표랑은 상이한데 이는 카메라 좌표계를 역으로 이용하기 위한 것으로 보인다. 이렇게 하여 원하는 픽셀 단위의 좌표를 가져와 그 위치로 선택된 정점의 위치를 갱신한다.
+이렇게 되면 선택된 정점과 연결된 점이 따라 올 것이고 또 그에 연결된 점들이 순차적으로 따라오게 된다. 스프링-댐퍼 방정식에 의해 마치 스프링처럼 원래 길이보다 크면 줄어들고 작으면 늘어나는 힘의 작용을 통해 천 시뮬레이션이 완성된다.
 
-  ## 문제점
-  가장 큰 문제는 마우스의 움직임이 시뮬레이션에 바로 적용하기에 너무 빠르다는 것이다. 정말 스프링처럼 쭈욱 늘어나는 현상을 막기 위해서 적분 과정에서 더 변수를 크게 하거나(시간 변수를 크게) 스프링-댐퍼 방정식의 상수들을 크게 하면 시뮬레이션의 오차범위를 벗어나 오브젝트가 난리치며 사라진다.
-  확인해 보니 여러 물리 시뮬레이션의 숙제같은 문제점이라고 하긴 하는데..어떻게 해결할 수 있을까?
+## 문제점
+가장 큰 문제는 마우스의 움직임이 시뮬레이션에 바로 적용하기에 너무 빠르다는 것이다. 정말 스프링처럼 쭈욱 늘어나는 현상을 막기 위해서 적분 과정에서 더 변수를 크게 하거나(시간 변수를 크게) 스프링-댐퍼 방정식의 상수들을 크게 하면 시뮬레이션의 오차범위를 벗어나 오브젝트가 난리치며 사라진다.
+확인해 보니 여러 물리 시뮬레이션의 숙제같은 문제점이라고 하긴 하는데..어떻게 해결할 수 있을까?
 
-  ## 참고 사이트
-  #### 물리 관련
-  - https://codepen.io/dissimulate/pen/eZxEBO
-  - http://andrew.wang-hoyer.com/experiments/cloth/
-  - https://burakkanber.com/blog/physics-in-javascript-car-suspension-part-1-spring-mass-damper/
+## 참고 사이트
+#### 물리 관련
+- https://codepen.io/dissimulate/pen/eZxEBO
+- http://andrew.wang-hoyer.com/experiments/cloth/
+- https://burakkanber.com/blog/physics-in-javascript-car-suspension-part-1-spring-mass-damper/
 
-  #### 렌더링 관련
-  - https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene (기초 렌더링)
-  - https://riptutorial.com/three-js/example/17088/object-picking---raycasting (오브젝트 피킹/선택)
-  - https://stackoverflow.com/questions/13055214/mouse-canvas-x-y-to-three-js-world-x-y-z (마우스의 월드 좌표 구하기)
-  - https://stackoverflow.com/questions/29583881/raycaster-intersection-isnt-accurate-after-moving-vertices (움직이는 객체의 위치 정보 갱신)
+#### 렌더링 관련
+- https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene (기초 렌더링)
+- https://riptutorial.com/three-js/example/17088/object-picking---raycasting (오브젝트 피킹/선택)
+- https://stackoverflow.com/questions/13055214/mouse-canvas-x-y-to-three-js-world-x-y-z (마우스의 월드 좌표 구하기)
+- https://stackoverflow.com/questions/29583881/raycaster-intersection-isnt-accurate-after-moving-vertices (움직이는 객체의 위치 정보 갱신)
 
-  ## 참고 도서
-  - 게임 개발자를 위한 물리 (spring.js의 update() 메서드 알고리즘)
-  - 게임 물리 엔진 개발
+## 참고 도서
+- 게임 개발자를 위한 물리 (spring.js의 update() 메서드 알고리즘)
+- 게임 물리 엔진 개발
