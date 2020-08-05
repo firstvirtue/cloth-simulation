@@ -49,7 +49,8 @@ class RenderEngine {
       side: THREE.DoubleSide,
       shininess: 30,
       transparent: true,
-      flatShading: true
+      flatShading: true,
+      wireframe: true
     });
 
     // 모델의 뼈대, 기하구조를 생성
