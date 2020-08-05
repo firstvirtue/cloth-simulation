@@ -4,7 +4,18 @@ import * as THREE from 'three';
 
 class RenderEngine {
   constructor() {
+    this.controlSettings = new function() {
+      this.wireframe = false
+    }
 
+    if (process.client) {
+      // import * as dat from 'dat.gui';
+      const dat = require('dat.gui');
+      const gui = new dat.GUI();
+      gui.add(this.controlSettings, 'wireframe').onChange(() => {
+        this.clothMaterial.wireframe = !this.clothMaterial.wireframe;
+      });
+    }
   }
 
   init(canvas, cloth) {
@@ -33,7 +44,7 @@ class RenderEngine {
 
     this.scene.add(spotLight);
     this.scene.add(spotLight.target);
-    this.scene.add(lightHelper);
+    // this.scene.add(lightHelper);
 
     // 모델에 입힐 이미지 텍스쳐를 로드한다.
     // [TODO] Material을 수정하여 사실적인 질감을 줄 수 있음.
@@ -43,21 +54,21 @@ class RenderEngine {
     clothTexture.wrapS = THREE.RepeatWrapping;
     clothTexture.wrapT = THREE.RepeatWrapping;
     clothTexture.magFilter = THREE.NearestFilter;
-    let clothMaterial = new THREE.MeshPhongMaterial({
+    this.clothMaterial = new THREE.MeshPhongMaterial({
       map: clothTexture,
       specular: 0x222222,
       side: THREE.DoubleSide,
       shininess: 30,
       transparent: true,
       flatShading: true,
-      wireframe: true
+      wireframe: this.controlSettings.wireframe
     });
 
     // 모델의 뼈대, 기하구조를 생성
     this.clothGeometry = new THREE.PlaneGeometry(cloth.clothW * cloth.spacing, cloth.clothH * cloth.spacing , cloth.clothW - 1, cloth.clothH - 1);
 
     // 지오메트리와 머티리얼을 이용해 실제 그려질 메쉬를 생성하여 씬에 넣음
-    this.object = new THREE.Mesh(this.clothGeometry, clothMaterial);
+    this.object = new THREE.Mesh(this.clothGeometry, this.clothMaterial);
     this.object.position.set(0, 0, 0);
     this.object.castShadow = true;
     this.scene.add(this.object);
