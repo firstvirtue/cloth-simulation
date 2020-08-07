@@ -92,7 +92,6 @@ export default {
     }
 
     function pointermove(e) {
-      console.log('move');
       if(mouse.down) {
         if(currentParticle) {
           mouse.vPosition = renderEngine.getMouse(e);
