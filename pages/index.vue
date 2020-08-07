@@ -75,26 +75,24 @@ export default {
       return minParticle;
     }
 
-    canvas.onmousedown = (e) => {
+    canvas.onpointerdown = (e) => {
       mouse.down = true;
 
       currentParticle = getClosestParticle(renderEngine.raycast(e));
-      // console.log(self.raycast(e));
       if(currentParticle !== undefined && currentParticle !== null) {
         currentParticle.setCurrent();
       }
     };
 
-    canvas.onmousemove = mousemove;
-
-    canvas.onmouseup = () => {
+    canvas.onpointerup = () => {
       mouse.down = false;
       if(currentParticle !== undefined) {
         currentParticle.free();
       }
     }
 
-    function mousemove(e) {
+    function pointermove(e) {
+      console.log('move');
       if(mouse.down) {
         if(currentParticle) {
           mouse.vPosition = renderEngine.getMouse(e);
@@ -103,6 +101,9 @@ export default {
         }
       }
     }
+
+    canvas.style.touchAction = 'none';
+    canvas.onpointermove = pointermove;
 
     let mouse = {
       down: false,
@@ -141,6 +142,7 @@ export default {
 
 <style>
 .container {
+  position: fixed;
 }
 
 .title {
