@@ -34,6 +34,9 @@ module.exports = {
         })
       }
     }
+  },
+  router: {
+    base: '/cloth-simulation/'
   }
 }
 
